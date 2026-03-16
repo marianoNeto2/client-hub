@@ -17,6 +17,13 @@ def create_user(
         raise HTTPException(status_code=400, detail="Email already exists")
     return user
 
+@router.get("/me", response_model=UserRead)
+def get_current_user_info(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return current_user
+
 @router.get("/{user_id}", response_model=UserRead)
 def get_user(
     user_id: int,
