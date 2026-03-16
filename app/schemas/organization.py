@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from app.schemas.customer import CustomerRead
+
 class OrganizationBase(BaseModel):
     name: str 
     description: Optional[str] = None
@@ -21,3 +23,7 @@ class OrganizationRead(OrganizationBase):
     
     class Config:
         from_attributes = True
+
+
+class OrganizationWithCustomers(OrganizationRead):
+    customers: list[CustomerRead] = []

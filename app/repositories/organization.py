@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.organization import Organization
 
@@ -12,6 +12,14 @@ def create(db: Session, organization: Organization) -> Organization:
 
 def get_by_id(db: Session, organization_id: int) -> Organization | None:
     return db.query(Organization).filter(Organization.id == organization_id).first()
+
+def get_with_customers(db: Session, organization_id: int) -> Organization | None:
+    return (
+        db.query(Organization)
+        .options(selectinload(Organization.customers))
+        .filter(Organization.id == organization_id)
+        .first()
+    )
 
 
 def list_all(db: Session) -> list[Organization]:

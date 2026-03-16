@@ -7,6 +7,7 @@ from app.schemas.organization import (
     OrganizationCreate,
     OrganizationRead,
     OrganizationUpdate,
+    OrganizationWithCustomers,
 )
 from app.services import organization as organization_service
 
@@ -31,6 +32,19 @@ def get_organization(
     db: Session = Depends(get_db),
 ):
     organization = organization_service.get_organization(db, organization_id)
+    if not organization:
+        raise HTTPException(status_code=404, detail="Organization not found")
+    return organization
+
+
+@router.get("/{organization_id}/with-customers", response_model=OrganizationWithCustomers)
+def get_organization_with_customers(
+    organization_id: int,
+    db: Session = Depends(get_db),
+):
+    organization = organization_service.get_organization_with_customers(
+        db, organization_id
+    )
     if not organization:
         raise HTTPException(status_code=404, detail="Organization not found")
     return organization

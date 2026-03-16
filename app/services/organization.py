@@ -12,6 +12,11 @@ def create_organization(db: Session, payload: OrganizationCreate) -> Organizatio
 def get_organization(db: Session, organization_id: int) -> Organization | None:
     return organization_repository.get_by_id(db, organization_id)
 
+def get_organization_with_customers(
+    db: Session, organization_id: int
+) -> Organization | None:
+    return organization_repository.get_with_customers(db, organization_id)
+
 
 def list_organizations(db: Session) -> list[Organization]:
     return organization_repository.list_all(db)
