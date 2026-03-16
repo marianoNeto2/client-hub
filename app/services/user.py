@@ -5,6 +5,9 @@ from app.schemas.user import UserCreate, UserUpdate
 from app.repositories import user as user_repository
 
 def create_user(db: Session, payload: UserCreate) -> User:
+    existing = user_repository.get_by_email(db, payload.email)
+    if existing:
+        return None
     data = payload.model_dump()
     data["password_hash"] = hash_password(data.pop("password"))
     user = User(**data)

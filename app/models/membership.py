@@ -23,9 +23,14 @@ class Membership(Base):
     role: Mapped[str] = mapped_column(String(50), nullable=False)
     status: Mapped[MembershipStatus] = mapped_column(String(20), nullable=False)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+    )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc)
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     user = relationship("User", back_populates="memberships")

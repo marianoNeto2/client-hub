@@ -33,7 +33,7 @@ def update_membership(
     data = payload.model_dump(exclude_unset=True)
     return membership_repository.update(db, membership, data)
 
-def delete_membership(db: Session, membership_id: int) -> None:
+def delete_membership(db: Session, membership_id: int) -> bool:
     membership = membership_repository.get_by_id(db, membership_id)
     if not membership:
         return False

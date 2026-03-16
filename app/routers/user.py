@@ -12,7 +12,10 @@ router = APIRouter(prefix="/users", tags=["users"])
 def create_user(
     payload: UserCreate, db: Session = Depends(get_db)
 ):
-    return user_service.create_user(db, payload)
+    user = user_service.create_user(db, payload)
+    if not user:
+        raise HTTPException(status_code=400, detail="Email already exists")
+    return user
 
 @router.get("/{user_id}", response_model=UserRead)
 def get_user(

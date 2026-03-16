@@ -9,7 +9,9 @@ pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY", "CHANGE_ME")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY is not set in the environment")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
