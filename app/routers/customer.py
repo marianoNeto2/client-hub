@@ -6,7 +6,7 @@ from app.core.dependencies import get_current_user
 from app.schemas.customer import CustomerCreate, CustomerRead, CustomerUpdate
 from app.services import customer as customer_service
 from typing import Optional
-from main import limiter
+from app.core.limiter import limiter
 
 router = APIRouter(
     prefix="/customers",
