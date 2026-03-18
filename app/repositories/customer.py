@@ -1,3 +1,4 @@
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.models.customer import Customer
 
@@ -11,8 +12,16 @@ def create(db: Session, customer: Customer) -> Customer:
 def get_by_id(db: Session, customer_id: int) -> Customer | None:
     return db.query(Customer).filter(Customer.id == customer_id).first()
 
-def list_all(db: Session) -> list[Customer]:
-    return db.query(Customer).all()
+def list_all(db: Session, skip: int, limit: int, search: str | None) -> list[Customer]:
+    query = db.query(Customer)
+    if search:
+        query = query.filter(
+            or_(
+                Customer.name.ilike(f"%{search}%"),
+                Customer.email.ilike(f"%{search}%")
+            )
+        )
+    return query.offset(skip).limit(limit).all()
 
 def update(db: Session, customer: Customer, data: dict) -> Customer:
     for key, value in data.items():

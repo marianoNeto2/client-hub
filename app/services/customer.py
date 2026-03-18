@@ -1,5 +1,7 @@
-from sqlalchemy.orm import Session
+from io import BytesIO
 
+from openpyxl import Workbook
+from sqlalchemy.orm import Session
 from app.models.customer import Customer
 from app.repositories import organization as organization_repository
 from app.schemas.customer import CustomerCreate, CustomerUpdate
@@ -16,8 +18,33 @@ def create_customer(db: Session, payload: CustomerCreate) -> Customer:
 def get_customer(db: Session, customer_id: int) -> Customer | None:
     return customer_repository.get_by_id(db, customer_id)
 
-def list_customers(db: Session) -> list[Customer]:
-    return customer_repository.list_all(db)
+def list_customers(db: Session, skip: int, limit: int, search: str | None) -> list[Customer]:
+    return customer_repository.list_all(db, skip, limit, search)
+
+def export_customers(db: Session, skip: int, limit: int, search: str | None):
+    customers = customer_repository.list_all(db, skip, limit, search)
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Customers"
+
+    sheet.append(["id", "name", "email", "phone", "organization_id", "created_at", "updated_at"])
+    for customer in customers:
+        sheet.append(
+            [
+                customer.id,
+                customer.name,
+                customer.email,
+                customer.phone,
+                customer.organization_id,
+                customer.created_at,
+                customer.updated_at,
+            ]
+        )
+
+    output = BytesIO()
+    workbook.save(output)
+    output.seek(0)
+    return output
 
 def update_customer(
     db: Session,

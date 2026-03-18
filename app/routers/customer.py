@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.schemas.customer import CustomerCreate, CustomerRead, CustomerUpdate
 from app.services import customer as customer_service
-
+from typing import Optional
 
 router = APIRouter(
     prefix="/customers",
@@ -22,6 +23,21 @@ def create_customer(
         raise HTTPException(status_code=404, detail="Organization not found")
     return customer
 
+@router.get("/export", status_code=status.HTTP_200_OK)
+def export_customers(
+    db: Session = Depends(get_db),
+    skip: Optional[int] = 0,
+    limit: int = 10,
+    search: Optional[str] = None
+):
+    file_obj = customer_service.export_customers(db, skip, limit, search)
+    headers = {"Content-Disposition": "attachment; filename=customers.xlsx"}
+    return StreamingResponse(
+        file_obj,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers,
+    )
+
 @router.get("/{customer_id}", response_model=CustomerRead)
 def get_customer(
     customer_id: int,
@@ -33,8 +49,13 @@ def get_customer(
     return customer
 
 @router.get("/", response_model=list[CustomerRead])
-def list_customers(db: Session = Depends(get_db)):
-    return customer_service.list_customers(db)
+def list_customers(
+    db: Session = Depends(get_db),
+    skip: Optional[int] = 0,
+    limit: int = 10,
+    search: Optional[str] = None
+):
+    return customer_service.list_customers(db, skip, limit, search)
 
 @router.patch("/{customer_id}", response_model=CustomerRead)
 def update_customer(
