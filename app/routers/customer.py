@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
@@ -6,6 +6,7 @@ from app.core.dependencies import get_current_user
 from app.schemas.customer import CustomerCreate, CustomerRead, CustomerUpdate
 from app.services import customer as customer_service
 from typing import Optional
+from main import limiter
 
 router = APIRouter(
     prefix="/customers",
@@ -14,7 +15,9 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=CustomerRead, status_code=status.HTTP_201_CREATED)
+@limiter.limit("3/minute")
 def create_customer(
+    request: Request,
     payload: CustomerCreate,
     db: Session = Depends(get_db)
 ):

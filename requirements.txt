@@ -3,3 +3,4 @@ python-jose
 python-dotenv
 openpyxl
 alembic
+slowapi
